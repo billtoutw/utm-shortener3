@@ -1,7 +1,7 @@
 import React from 'react';
 import './index.css';
 import './App.css';
-import UTMShortenerApp from './UTMShortenerApp';
+import UTMShortenerApp from './UTMShortenerApp.js';
 
 function App() {
   return (
