@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { Copy, Link, ExternalLink, Check } from 'lucide-react';
 
+const serviceOptions = [
+  { value: 'bitly', label: 'Bitly', apiDoc: 'https://app.bitly.com/settings/api' },
+  { value: 'tinyurl', label: 'TinyURL', apiDoc: 'https://tinyurl.com/app/settings/api' },
+];
+
 const UTMShortenerApp = () => {
   const [originalUrl, setOriginalUrl] = useState('');
   const [campaignSource, setCampaignSource] = useState('');
@@ -12,8 +17,9 @@ const UTMShortenerApp = () => {
   const [copiedUtm, setCopiedUtm] = useState(false);
   const [copiedShort, setCopiedShort] = useState(false);
   const [error, setError] = useState('');
+  const [service, setService] = useState('bitly'); // 預設 bitly
 
-  // 預設選項
+  // 選單內容
   const sourceOptions = ['FB', 'IGBIO', 'IGSTORY', 'THREAD', 'LINE'];
   const mediumOptions = ['TNL', 'SV', 'INSIDE'];
 
@@ -25,30 +31,26 @@ const UTMShortenerApp = () => {
     try {
       const url = new URL(originalUrl);
       const params = new URLSearchParams();
-
       params.append('utm_source', campaignSource);
       params.append('utm_medium', campaignMedium);
 
-      // 將 UTM 參數加到原網址
+      // 加 UTM 參數
       const existingParams = url.search;
       if (existingParams) {
         url.search = existingParams + '&' + params.toString();
       } else {
         url.search = '?' + params.toString();
       }
-
       const generatedUtmUrl = url.toString();
       setUtmUrl(generatedUtmUrl);
       setError('');
-
-      // 自動進行縮網址
-      shortenUrl(generatedUtmUrl);
+      shortenUrl(generatedUtmUrl, service);
     } catch (error) {
       setError('請輸入有效的網址格式（例如 https://example.com）');
     }
   };
 
-  const shortenUrl = async (urlToShorten) => {
+  const shortenUrl = async (urlToShorten, service) => {
     setIsGenerating(true);
     setShortUrl('');
     setError('');
@@ -56,9 +58,8 @@ const UTMShortenerApp = () => {
       const response = await fetch('/api/shorten', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: urlToShorten, apiKey }),
+        body: JSON.stringify({ url: urlToShorten, apiKey, service }),
       });
-
       const data = await response.json();
       if (response.ok && data.shortUrl) {
         setShortUrl(data.shortUrl);
@@ -90,7 +91,6 @@ const UTMShortenerApp = () => {
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
-
       if (type === 'utm') {
         setCopiedUtm(true);
         setTimeout(() => setCopiedUtm(false), 2000);
@@ -111,7 +111,11 @@ const UTMShortenerApp = () => {
     setCopiedUtm(false);
     setCopiedShort(false);
     setError('');
+    setService('bitly');
   };
+
+  // 動態取得 API Key 說明網址
+  const currentService = serviceOptions.find((s) => s.value === service);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
@@ -130,16 +134,42 @@ const UTMShortenerApp = () => {
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Bitly API Key *
+                  選擇縮網址服務 *
+                </label>
+                <select
+                  value={service}
+                  onChange={(e) => setService(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                >
+                  {serviceOptions.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  {currentService.label} API Key *
                 </label>
                 <input
                   type="text"
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                  placeholder="輸入您的 Bitly API Key"
+                  placeholder={`輸入您的 ${currentService.label} API Key`}
                 />
               </div>
+              <p className="text-xs text-gray-500 mt-1">
+                需申請{' '}
+                <a
+                  href={currentService.apiDoc}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-indigo-600 hover:underline"
+                >
+                  {currentService.label} API Key
+                </a>
+                {' '}後才可自動縮短
+              </p>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   原始網址 *
@@ -201,18 +231,6 @@ const UTMShortenerApp = () => {
                   重置
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
-  	需申請{' '}
-  	<a
-    	href="https://app.bitly.com/settings/api"
-    	target="_blank"
-    	rel="noopener noreferrer"
-    	className="text-indigo-600 hover:underline"
-  	>
-    	Bitly API Key
-  	</a>{' '}
-  	後才可自動縮短
-	</p>
               {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
             </div>
 
@@ -283,24 +301,29 @@ const UTMShortenerApp = () => {
                     <li>
                       前往{' '}
                       <a
-                        href="https://bitly.com/"
+                        href={service === 'bitly'
+                          ? 'https://bitly.com/'
+                          : 'https://tinyurl.com/'}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="font-semibold underline"
                       >
-                        bitly.com
+                        {service === 'bitly' ? 'bitly.com' : 'tinyurl.com'}
                       </a>
                     </li>
                     <li>貼上網址並點擊縮短</li>
                     <li>複製生成的短網址使用</li>
                   </ol>
                   <a
-                    href="https://bitly.com/"
+                    href={service === 'bitly'
+                      ? 'https://bitly.com/'
+                      : 'https://tinyurl.com/'}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
                   >
-                    前往 Bitly <ExternalLink className="w-4 h-4 ml-1" />
+                    前往 {service === 'bitly' ? 'Bitly' : 'TinyURL'}
+                    <ExternalLink className="w-4 h-4 ml-1" />
                   </a>
                 </div>
               )}
@@ -324,16 +347,17 @@ const UTMShortenerApp = () => {
             <div>
               <h3 className="font-semibold text-gray-800 mb-2">技術說明：</h3>
               <ul className="space-y-1 list-disc list-inside">
-                <li>由於瀏覽器 CORS 安全限制，需透過後端代理調用 Bitly API</li>
+                <li>由於瀏覽器 CORS 安全限制，需透過後端代理調用 Bitly 或 TinyURL API</li>
                 <li>工具會自動生成 UTM 追蹤網址</li>
                 <li>若自動縮短失敗，需手動完成最後的縮網址步驟</li>
-                <li>建議使用 bitly.com 或其他縮網址服務</li>
+                <li>建議使用 bitly.com、tinyurl.com 或其他縮網址服務</li>
               </ul>
             </div>
             <div>
               <h3 className="font-semibold text-gray-800 mb-2">使用流程：</h3>
               <ol className="space-y-1 list-decimal list-inside">
-                <li>輸入您的 Bitly API Key</li>
+                <li>選擇縮網址服務</li>
+                <li>輸入您的 API Key（依服務選擇 Bitly 或 TinyURL）</li>
                 <li>填入您要追蹤的原始網址</li>
                 <li>選擇發布平台（FB、IGBIO、IGSTORY 等）</li>
                 <li>選擇品牌名稱（TNL、SV、INSIDE）</li>
@@ -345,13 +369,13 @@ const UTMShortenerApp = () => {
             <div>
               <h3 className="font-semibold text-gray-800 mb-2">功能特色：</h3>
               <ul className="space-y-1 list-disc list-inside">
+                <li>同時支援 Bitly、TinyURL 自動縮短</li>
                 <li>自動生成 UTM 追蹤網址</li>
                 <li>預設常用的平台和品牌選項</li>
                 <li>一鍵複製功能</li>
                 <li>即時預覽 UTM 參數</li>
                 <li>支援網址有效性驗證</li>
                 <li>響應式設計，手機也能使用</li>
-                <li>整合 Bitly 手動流程指引</li>
                 <li>簡化工作流程</li>
               </ul>
             </div>
