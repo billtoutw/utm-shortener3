@@ -202,17 +202,17 @@ const UTMShortenerApp = () => {
                 </button>
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                需申請{' '}
-                <a
-                  href="https://bitly.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-indigo-600 hover:underline"
-                >
-                  Bitly API Key
-                </a>{' '}
-                後才可自動縮短
-              </p>
+  	需申請{' '}
+  	<a
+    	href="https://app.bitly.com/settings/api"
+    	target="_blank"
+    	rel="noopener noreferrer"
+    	className="text-indigo-600 hover:underline"
+  	>
+    	Bitly API Key
+  	</a>{' '}
+  	後才可自動縮短
+	</p>
               {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
             </div>
 
