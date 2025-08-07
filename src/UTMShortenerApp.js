@@ -21,7 +21,7 @@ const UTMShortenerApp = () => {
   const [service, setService] = useState('bitly'); // 預設 bitly
 
   // 選單內容
-  const sourceOptions = ['FB', 'IGBIO', 'IGSTORY', 'THREAD', 'LINE'];
+  const sourceOptions = ['FB', 'IGBIO', 'IGSTORY', 'THREAD', 'LINE', 'LINEOA', 'Banner'];
   const mediumOptions = ['TNL', 'SV', 'INSIDE'];
 
   const generateUTMUrl = () => {
