@@ -46,6 +46,19 @@ export default async function handler(req, res) {
       } else {
         return res.status(400).json({ error: (data.errors && data.errors[0]?.message) || 'TinyURL API 錯誤' });
       }
+    } else if (service === 'picsee') {
+      // 注意 access_token 是 query string 帶入
+      response = await fetch('https://api.pics.ee/v1/links?access_token=' + apiKey, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ target: url })
+      });
+      data = await response.json();
+      if (response.ok && data.short_url) {
+        return res.status(200).json({ shortUrl: data.short_url });
+      } else {
+        return res.status(400).json({ error: (data.message || (data.errors && data.errors[0]?.message) || 'PicSee API 錯誤') });
+      }
     } else {
       return res.status(400).json({ error: '不支援的縮網址服務' });
     }

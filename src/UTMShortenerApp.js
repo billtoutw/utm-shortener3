@@ -4,6 +4,7 @@ import { Copy, Link, ExternalLink, Check } from 'lucide-react';
 const serviceOptions = [
   { value: 'bitly', label: 'Bitly', apiDoc: 'https://app.bitly.com/settings/api' },
   { value: 'tinyurl', label: 'TinyURL', apiDoc: 'https://tinyurl.com/app/settings/api' },
+  { value: 'picsee', label: 'PicSee', apiDoc: 'https://picsee.io/developers' },
 ];
 
 const UTMShortenerApp = () => {
@@ -301,28 +302,45 @@ const UTMShortenerApp = () => {
                     <li>
                       前往{' '}
                       <a
-                        href={service === 'bitly'
-                          ? 'https://bitly.com/'
-                          : 'https://tinyurl.com/'}
+                        href={
+                          service === 'bitly'
+                            ? 'https://bitly.com/'
+                            : service === 'picsee'
+                            ? 'https://picsee.io/'
+                            : 'https://tinyurl.com/'
+                        }
                         target="_blank"
                         rel="noopener noreferrer"
                         className="font-semibold underline"
                       >
-                        {service === 'bitly' ? 'bitly.com' : 'tinyurl.com'}
+                        {service === 'bitly'
+                          ? 'bitly.com'
+                          : service === 'picsee'
+                          ? 'picsee.io'
+                          : 'tinyurl.com'}
                       </a>
                     </li>
                     <li>貼上網址並點擊縮短</li>
                     <li>複製生成的短網址使用</li>
                   </ol>
                   <a
-                    href={service === 'bitly'
-                      ? 'https://bitly.com/'
-                      : 'https://tinyurl.com/'}
+                    href={
+                      service === 'bitly'
+                        ? 'https://bitly.com/'
+                        : service === 'picsee'
+                        ? 'https://picsee.io/'
+                        : 'https://tinyurl.com/'
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
                   >
-                    前往 {service === 'bitly' ? 'Bitly' : 'TinyURL'}
+                    前往
+                    {service === 'bitly'
+                      ? ' Bitly'
+                      : service === 'picsee'
+                      ? ' PicSee'
+                      : ' TinyURL'}
                     <ExternalLink className="w-4 h-4 ml-1" />
                   </a>
                 </div>
@@ -347,17 +365,17 @@ const UTMShortenerApp = () => {
             <div>
               <h3 className="font-semibold text-gray-800 mb-2">技術說明：</h3>
               <ul className="space-y-1 list-disc list-inside">
-                <li>由於瀏覽器 CORS 安全限制，需透過後端代理調用 Bitly 或 TinyURL API</li>
+                <li>由於瀏覽器 CORS 安全限制，需透過後端代理調用 Bitly、TinyURL 或 PicSee API</li>
                 <li>工具會自動生成 UTM 追蹤網址</li>
                 <li>若自動縮短失敗，需手動完成最後的縮網址步驟</li>
-                <li>建議使用 bitly.com、tinyurl.com 或其他縮網址服務</li>
+                <li>建議使用 bitly.com、tinyurl.com、picsee.io 或其他縮網址服務</li>
               </ul>
             </div>
             <div>
               <h3 className="font-semibold text-gray-800 mb-2">使用流程：</h3>
               <ol className="space-y-1 list-decimal list-inside">
                 <li>選擇縮網址服務</li>
-                <li>輸入您的 API Key（依服務選擇 Bitly 或 TinyURL）</li>
+                <li>輸入您的 API Key（依服務選擇 Bitly、TinyURL 或 PicSee）</li>
                 <li>填入您要追蹤的原始網址</li>
                 <li>選擇發布平台（FB、IGBIO、IGSTORY 等）</li>
                 <li>選擇品牌名稱（TNL、SV、INSIDE）</li>
@@ -369,7 +387,7 @@ const UTMShortenerApp = () => {
             <div>
               <h3 className="font-semibold text-gray-800 mb-2">功能特色：</h3>
               <ul className="space-y-1 list-disc list-inside">
-                <li>同時支援 Bitly、TinyURL 自動縮短</li>
+                <li>同時支援 Bitly、TinyURL、PicSee 自動縮短</li>
                 <li>自動生成 UTM 追蹤網址</li>
                 <li>預設常用的平台和品牌選項</li>
                 <li>一鍵複製功能</li>
